@@ -5,7 +5,7 @@
 vector_store:
   provider: qdrant
   config:
-    host: localhost
+    host: vectordb
     port: 6333
 
 llm:

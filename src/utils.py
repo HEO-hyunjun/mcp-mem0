@@ -1,5 +1,10 @@
+import re
+from dotenv import load_dotenv
 from mem0 import Memory
 import os
+import yaml
+
+load_dotenv()
 
 # Custom instructions for memory processing
 # These aren't being used right now but Mem0 does support adding custom prompting
@@ -14,11 +19,24 @@ Extract the Following Information:
 - Source: Record where this information came from when applicable.
 """
 
+def resolve_env_vars(obj):
+    if isinstance(obj, dict):
+        return {k: resolve_env_vars(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [resolve_env_vars(i) for i in obj]
+    elif isinstance(obj, str):
+        # Replace ${VAR} with actual env variable
+        return re.sub(r"\$\{([^}^{]+)\}", lambda m: os.getenv(m.group(1), m.group(0)), obj)
+    else:
+        return obj
 
 def get_mem0_client():
-    config_file_path = os.getenv("CONFIG_FILE")
-    if config_file_path == None or config_file_path == "":
-        raise Exception(
-            "Config file path is empty! please check environment variable CONFIG_FILE")
+    # Load Mem0 client configuration from a YAML file
+    config = {}
+    
+    with open("./mem0_config.yml") as f:
+        config = yaml.safe_load(f)
 
-    return Memory.from_config_file(config_file_path)
+    config = resolve_env_vars(config)
+
+    return Memory.from_config(config)

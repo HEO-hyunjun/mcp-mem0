@@ -8,6 +8,13 @@ vector_store:
     host: vectordb
     port: 6333
 
+graph_store:
+  provider: neo4j
+  config:
+    url: bolt://neo4j:7687
+    username: ${NEO4J_USERNAME}
+    password: ${NEO4J_PASSWORD}
+
 llm:
   provider: azure_openai
   config:

@@ -1,0 +1,25 @@
+# This file is for mem0 settings.
+# Refer to the link below for detailed instructions.
+# https://docs.mem0.ai/open-source/configuration#config-yaml
+
+vector_store:
+  provider: qdrant
+  config:
+    host: localhost
+    port: 6333
+
+llm:
+  provider: azure_openai
+  config:
+    api_key: ${AZURE_OPENAI_KEY}
+    deployment_name: gpt-4.1-mini
+
+embedder:
+  provider: ollama
+  config:
+    model: nomic-embed-text
+
+reranker:
+  provider: zero_entropy
+  config:
+    api_key: ${ZERO_ENTROPY_KEY}

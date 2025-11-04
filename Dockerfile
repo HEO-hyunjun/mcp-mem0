@@ -8,11 +8,14 @@ WORKDIR /app
 RUN pip install uv
 
 # Copy the MCP server files
-COPY . .
+COPY pyproject.toml .
+COPY uv.lock .
 
 # Install packages
 RUN python -m venv .venv
 RUN uv pip install -e .
+
+COPY . .
 
 EXPOSE ${PORT}
 

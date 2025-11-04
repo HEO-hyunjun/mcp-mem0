@@ -1,0 +1,62 @@
+name: mcp_mem0
+
+services:
+  mem0:
+    container_name: mcp_mem0
+    build:
+      context: .
+    networks:
+      - mem0_network
+    ports:
+      - "${PORT:-8050}:8050"
+    volumes:
+      - ./mem0_config.yml:/app/mem0_config.yml
+    depends_on:
+      vectordb:
+        condition: service_started
+      neo4j:
+        condition: service_healthy
+    env_file:
+      - .env
+
+  vectordb:
+    container_name: vectordb
+    image: qdrant/qdrant:v1.13.2
+    networks:
+      - mem0_network
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./volume/qdrant_data:/qdrant/storage
+    environment:
+      TZ: Asia/Seoul
+      QDRANT__STORAGE__STORAGE_PATH: /qdrant/storage
+      QDRANT__STORAGE__ON_DISK: "true"
+      QDRANT__STORAGE__DISABLE_FS_AVAILABILITY_CHECK: "true"
+
+  neo4j:
+    container_name: neo4j
+    image: neo4j:5.26.4
+    networks:
+      - mem0_network
+    healthcheck:
+      test: wget http://localhost:7687 || exit 1
+      interval: 1s
+      timeout: 10s
+      retries: 20
+      start_period: 90s
+    ports:
+      - "7474:7474" # HTTP
+      - "7687:7687" # Bolt
+    volumes:
+      - ./volume/neo4j_data:/data
+    environment:
+      - NEO4J_AUTH=${NEO4J_USERNAME:-neo4juser}/${NEO4J_PASSWORD:-neo4jpassword}
+      - NEO4J_PLUGINS=["apoc"] # Add this line to install APOC
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+
+networks:
+  mem0_network:
+    driver: bridge

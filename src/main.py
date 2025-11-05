@@ -47,7 +47,7 @@ async def mem0_lifespan(server: FastMCP) -> AsyncIterator[Mem0Context]:
 # Initialize FastMCP server with the Mem0 client as context
 mcp = FastMCP(
     "mcp-mem0",
-    description="MCP server for long term memory storage and retrieval with Mem0",
+    instructions="MCP server for long term memory storage and retrieval with Mem0",
     lifespan=mem0_lifespan,
     host="0.0.0.0",
     port=os.getenv("PORT", "8000")
@@ -124,15 +124,5 @@ async def search_memories(ctx: Context, query: str, limit: int = 3) -> str:
     except Exception as e:
         return f"Error searching memories: {str(e)}"
 
-
-async def main():
-    transport = os.getenv("TRANSPORT", "sse")
-    if transport == 'sse':
-        # Run the MCP server with sse transport
-        await mcp.run_sse_async()
-    else:
-        # Run the MCP server with stdio transport
-        await mcp.run_stdio_async()
-
 if __name__ == "__main__":
-    asyncio.run(main())
+    mcp.run(transport=os.getenv("TRANSPORT", "sse"))

@@ -2,12 +2,17 @@
 # Refer to the link below for detailed instructions.
 # https://docs.mem0.ai/open-source/configuration#config-yaml
 
+# If you want to control keys using environment variables,
+# you can use the ${any_environment} syntax to apply the environment variable.
+
+# https://docs.mem0.ai/components/vectordbs/config
 vector_store:
   provider: qdrant
   config:
     host: vectordb
     port: 6333
 
+# https://docs.mem0.ai/open-source/features/graph-memory
 graph_store:
   provider: neo4j
   config:
@@ -15,17 +20,20 @@ graph_store:
     username: ${NEO4J_USERNAME}
     password: ${NEO4J_PASSWORD}
 
+# https://docs.mem0.ai/components/llms/config
 llm:
   provider: azure_openai
   config:
     api_key: ${AZURE_OPENAI_KEY}
     deployment_name: gpt-4.1-mini
 
+# https://docs.mem0.ai/components/embedders/config
 embedder:
   provider: ollama
   config:
     model: nomic-embed-text
 
+# https://docs.mem0.ai/components/rerankers/config
 reranker:
   provider: zero_entropy
   config:

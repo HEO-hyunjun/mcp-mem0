@@ -42,7 +42,7 @@ The project includes:
 1. Clone this repository:
 
    ```bash
-   git clone https://github.com/coleam00/mcp-mem0.git
+   git clone https://github.com/HEO-hyunjun/mcp-mem0.git
    cd mcp-mem0
    ```
 
@@ -75,7 +75,7 @@ If you prefer to run without Docker:
 2. Clone and install dependencies:
 
    ```bash
-   git clone https://github.com/coleam00/mcp-mem0.git
+   git clone https://github.com/HEO-hyunjun/mcp-mem0.git
    cd mcp-mem0
    uv sync
    ```
@@ -90,10 +90,10 @@ Configure these variables in your `.env` file:
 
 #### Core Settings
 
-| Variable    | Description                                | Default | Required       |
-| ----------- | ------------------------------------------ | ------- | -------------- |
-| `TRANSPORT` | Transport protocol (sse or stdio)          | `sse`   | Yes            |
-| `PORT`      | Port to listen on when using SSE transport | `8000`  | Yes (SSE only) |
+| Variable    | Description                                                  | Default | Required                            |
+| ----------- | ------------------------------------------------------------ | ------- | ----------------------------------- |
+| `TRANSPORT` | Transport protocol (sse, stdio, or streamable-http)          | `sse`   | Yes                                 |
+| `PORT`      | Port to listen on when using SSE or streamable-http transport | `8000`  | Yes (SSE/streamable-http only) |
 
 #### Graph Store (Neo4j)
 
@@ -194,11 +194,41 @@ If running without Docker, you'll need to set up Qdrant and optionally Neo4j sep
 uv run src/main.py
 ```
 
+#### Streamable HTTP Transport
+
+```bash
+# Set TRANSPORT=streamable-http in .env then:
+uv run src/main.py
+```
+
 #### Stdio Transport
 
 With stdio, the MCP client itself can spin up the MCP server, so nothing needs to be run manually.
 
 ## Integration with MCP Clients
+
+### Streamable HTTP Configuration
+
+Streamable HTTP is the modern transport protocol (released March 26, 2025) that provides bidirectional communication through a single endpoint. Once you have the server running with streamable-http transport, you can connect to it using this configuration:
+
+```json
+{
+  "mcpServers": {
+    "mem0": {
+      "transport": "streamable-http",
+      "url": "http://localhost:8000/mcp"
+    }
+  }
+}
+```
+
+**Key features:**
+- Single endpoint architecture for all MCP interactions
+- Bidirectional communication (servers can send notifications and requests back to clients)
+- Session management support via `Mcp-Session-Id` header
+- Recommended for new deployments
+
+Make sure to update the port if you are using a value other than the default 8000.
 
 ### SSE Configuration
 

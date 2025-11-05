@@ -8,7 +8,7 @@ services:
     networks:
       - mem0_network
     ports:
-      - "${PORT:-8050}:8050"
+      - "${PORT:-8000}:${PORT:-8000}"
     volumes:
       - ./mem0_config.yml:/app/mem0_config.yml
     depends_on:

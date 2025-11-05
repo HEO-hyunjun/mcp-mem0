@@ -16,25 +16,28 @@ load_dotenv()
 DEFAULT_USER_ID = "user"
 
 # Create a dataclass for our application context
+
+
 @dataclass
 class Mem0Context:
     """Context for the Mem0 MCP server."""
     mem0_client: Memory
 
+
 @asynccontextmanager
 async def mem0_lifespan(server: FastMCP) -> AsyncIterator[Mem0Context]:
     """
     Manages the Mem0 client lifecycle.
-    
+
     Args:
         server: The FastMCP server instance
-        
+
     Yields:
         Mem0Context: The context containing the Mem0 client
     """
     # Create and return the Memory client with the helper function in utils.py
     mem0_client = get_mem0_client()
-    
+
     try:
         yield Mem0Context(mem0_client=mem0_client)
     finally:
@@ -46,9 +49,10 @@ mcp = FastMCP(
     "mcp-mem0",
     description="MCP server for long term memory storage and retrieval with Mem0",
     lifespan=mem0_lifespan,
-    host=os.getenv("HOST", "0.0.0.0"),
-    port=os.getenv("PORT", "8050")
-)        
+    host="0.0.0.0",
+    port=os.getenv("PORT", "8000")
+)
+
 
 @mcp.tool()
 async def save_memory(ctx: Context, text: str) -> str:
@@ -69,10 +73,11 @@ async def save_memory(ctx: Context, text: str) -> str:
     except Exception as e:
         return f"Error saving memory: {str(e)}"
 
+
 @mcp.tool()
 async def get_all_memories(ctx: Context) -> str:
     """Get all stored memories for the user.
-    
+
     Call this tool when you need complete context of all previously memories.
 
     Args:
@@ -85,12 +90,14 @@ async def get_all_memories(ctx: Context) -> str:
         mem0_client = ctx.request_context.lifespan_context.mem0_client
         memories = mem0_client.get_all(user_id=DEFAULT_USER_ID)
         if isinstance(memories, dict) and "results" in memories:
-            flattened_memories = [memory["memory"] for memory in memories["results"]]
+            flattened_memories = [memory["memory"]
+                                  for memory in memories["results"]]
         else:
             flattened_memories = memories
         return json.dumps(flattened_memories, indent=2)
     except Exception as e:
         return f"Error retrieving memories: {str(e)}"
+
 
 @mcp.tool()
 async def search_memories(ctx: Context, query: str, limit: int = 3) -> str:
@@ -106,14 +113,17 @@ async def search_memories(ctx: Context, query: str, limit: int = 3) -> str:
     """
     try:
         mem0_client = ctx.request_context.lifespan_context.mem0_client
-        memories = mem0_client.search(query, user_id=DEFAULT_USER_ID, limit=limit)
+        memories = mem0_client.search(
+            query, user_id=DEFAULT_USER_ID, limit=limit)
         if isinstance(memories, dict) and "results" in memories:
-            flattened_memories = [memory["memory"] for memory in memories["results"]]
+            flattened_memories = [memory["memory"]
+                                  for memory in memories["results"]]
         else:
             flattened_memories = memories
         return json.dumps(flattened_memories, indent=2)
     except Exception as e:
         return f"Error searching memories: {str(e)}"
+
 
 async def main():
     transport = os.getenv("TRANSPORT", "sse")

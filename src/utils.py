@@ -33,10 +33,15 @@ def resolve_env_vars(obj):
 def get_mem0_client():
     # Load Mem0 client configuration from a YAML file
     config = {}
-    
+
     with open("./mem0_config.yml") as f:
         config = yaml.safe_load(f)
 
     config = resolve_env_vars(config)
+
+    # Remove graph_store config if ENABLE_GRAPH_STORE is not set to true
+    enable_graph_store = os.getenv("ENABLE_GRAPH_STORE", "false").lower()
+    if enable_graph_store not in ("true", "1", "yes"):
+        config.pop("graph_store", None)
 
     return Memory.from_config(config)

@@ -16,8 +16,23 @@ services:
         condition: service_started
       neo4j:
         condition: service_healthy
-    env_file:
-      - .env
+        required: false
+    environment:
+      - TRANSPORT=${TRANSPORT:-sse}
+      - PORT=${PORT:-8000}
+      - ENABLE_GRAPH_STORE=${ENABLE_GRAPH_STORE:-false}
+      - NEO4J_USERNAME=${NEO4J_USERNAME:-neo4juser}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD:-neo4jpassword}
+
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - AZURE_OPENAI_KEY=${AZURE_OPENAI_KEY}
+      - LLM_AZURE_OPENAI_API_KEY=${LLM_AZURE_OPENAI_API_KEY}
+      - LLM_AZURE_DEPLOYMENT=${LLM_AZURE_DEPLOYMENT}
+      - LLM_AZURE_ENDPOINT=${LLM_AZURE_ENDPOINT}
+      - LLM_AZURE_API_VERSION=${LLM_AZURE_API_VERSION}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - ZERO_ENTROPY_KEY=${ZERO_ENTROPY_KEY}
 
   vectordb:
     container_name: vectordb
@@ -37,6 +52,8 @@ services:
   neo4j:
     container_name: neo4j
     image: neo4j:5.26.4
+    profiles:
+      - graph
     networks:
       - mem0_network
     healthcheck:
